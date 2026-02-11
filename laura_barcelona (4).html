@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Laura BCN">
+<meta name="theme-color" content="#080818">
+<title>Laura in Barcelona</title>
+<style>
+:root {
+  --bg:     #080818;
+  --card:   #12122a;
+  --border: #1e1e4a;
+  --gold:   #f5c518;
+  --red:    #c0392b;
+  --red2:   #e74c3c;
+  --blue:   #1e40af;
+  --blue2:  #3b82f6;
+  --cyan:   #00d4ff;
+  --white:  #f0f0ff;
+  --muted:  #8888aa;
+  --green:  #10b981;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Courier New', Courier, monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(30,64,175,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30,64,175,0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ====== SCREEN SYSTEM — pure CSS, no JS display toggling ====== */
+/* All screens use position absolute and opacity/pointer-events
+   to avoid any JS show/hide that could fail on Safari local files */
+
+#app { position: relative; min-height: 100vh; }
+
+.screen {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.screen.visible {
+  opacity: 1;
+  pointer-events: all;
+  position: relative; /* take up space when visible */
+}
+
+/* ====== HEADER ====== */
+.hdr {
+  text-align: center;
+  padding: 50px 20px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.hdr-glow {
+  position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+  width: 280px; height: 280px; pointer-events: none;
+  background: radial-gradient(ellipse, rgba(192,57,43,0.32) 0%, transparent 70%);
+}
+.hdr-glow2 {
+  position: absolute; top: -20px; left: 5%;
+  width: 160px; height: 160px; pointer-events: none;
+  background: radial-gradient(ellipse, rgba(245,197,24,0.16) 0%, transparent 70%);
+}
+.tag {
+  display: inline-block; background: var(--red); color: #fff;
+  font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; padding: 4px 12px; border-radius: 50px; margin-bottom: 14px;
+}
+.hdr h1 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(52px, 14vw, 80px);
+  line-height: 0.93; letter-spacing: 2px;
+  background: linear-gradient(135deg, #f5c518 0%, #ffaa00 45%, #e74c3c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.hdr h2 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(18px, 5vw, 28px);
+  color: var(--cyan); letter-spacing: 4px; margin-bottom: 6px;
+}
+.hdr p { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+
+/* ====== SECTION LABEL ====== */
+.sec-label {
+  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(to right, rgba(245,197,24,0.4), transparent);
+}
+
+/* ====== INSTALL BANNER ====== */
+#installBanner {
+  margin: 8px 16px;
+  background: linear-gradient(135deg, #1a1a3a, #0e1a3a);
+  border: 1px solid rgba(0,212,255,0.25);
+  border-radius: 14px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+#installBanner .ico { font-size: 26px; flex-shrink: 0; }
+#installBanner .txt { flex: 1; }
+#installBanner .ttl { font-size: 12px; font-weight: 700; color: var(--cyan); margin-bottom: 3px; }
+#installBanner .dsc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+#installBanner button {
+  background: none; border: none; color: var(--muted);
+  font-size: 20px; cursor: pointer; padding: 4px; flex-shrink: 0;
+}
+
+/* ====== WELCOME CARDS ====== */
+.welcome-wrap { padding: 0 16px 10px; }
+
+.wcrd {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 14px; padding: 16px 18px; margin-bottom: 10px;
+  cursor: pointer;
+  -webkit-appearance: none; /* iOS button reset */
+  appearance: none;
+  text-align: left; width: 100%;
+  transition: background 0.15s;
+  display: block;
+}
+.wcrd:active, .wcrd.playing {
+  background: #1a1a3a; border-left-color: var(--cyan);
+}
+.wcrd .nl { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+.wcrd .es { font-size: 15px; font-weight: 700; color: var(--white); }
+.wcrd .hint {
+  font-size: 10px; color: var(--gold); margin-top: 6px; opacity: 0.7;
+  font-family: 'Courier New', monospace;
+}
+.wcrd.playing .hint { color: var(--cyan); opacity: 1; }
+
+/* ====== CATEGORY GRID ====== */
+.cat-wrap { padding: 20px 16px 16px; }
+.cat-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.cbtn {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px 12px 18px;
+  cursor: pointer; text-align: center;
+  -webkit-appearance: none; appearance: none;
+  width: calc(50% - 6px);
+  transition: background 0.15s;
+}
+.cbtn:last-child { width: 100%; }
+.cbtn:nth-child(1) { border-top: 2px solid var(--gold); }
+.cbtn:nth-child(2) { border-top: 2px solid var(--cyan); }
+.cbtn:nth-child(3) { border-top: 2px solid var(--red2); }
+.cbtn:nth-child(4) { border-top: 2px solid #a855f7; }
+.cbtn:nth-child(5) { border-top: 2px solid var(--green); }
+.cbtn:active { background: #1a1a3a; }
+.cbtn .ico { font-size: 30px; display: block; margin-bottom: 10px; }
+.cbtn .es  { font-family: Impact, 'Arial Black', sans-serif; font-size: 14px; letter-spacing: 1px; color: var(--white); margin-bottom: 4px; }
+.cbtn .nl  { font-size: 10px; color: var(--muted); }
+
+/* ====== RANDOM BUTTON ====== */
+.rnd-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: calc(100% - 32px); margin: 4px 16px 16px;
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  border: none; border-radius: 14px; padding: 16px; color: white;
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 19px; letter-spacing: 2px; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+}
+.rnd-btn:active { opacity: 0.82; }
+
+.footer {
+  text-align: center; padding: 8px 16px 36px;
+  font-size: 10px; color: var(--muted); letter-spacing: 2px; opacity: 0.4;
+}
+
+/* ====== CATEGORY SCREEN ====== */
+.cat-hdr {
+  display: flex; align-items: center; gap: 14px;
+  padding: 52px 16px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+  background: rgba(8,8,24,0.96);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+.back-btn {
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--white); font-family: 'Courier New', monospace;
+  font-size: 13px; padding: 8px 14px; border-radius: 10px;
+  cursor: pointer; -webkit-appearance: none; appearance: none;
+  white-space: nowrap;
+}
+.back-btn:active { background: #1e1e4a; border-color: var(--gold); }
+.cat-hdr-info { flex: 1; }
+.cat-hdr-es {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(15px, 4vw, 20px); letter-spacing: 1px; line-height: 1.1;
+}
+.cat-hdr-nl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.phrase-list { padding: 10px 16px 48px; position: relative; z-index: 1; }
+
+.pitem {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 15px 16px; margin-bottom: 10px;
+  cursor: pointer; display: flex; align-items: center; gap: 12px;
+  -webkit-appearance: none; appearance: none; width: 100%; text-align: left;
+  transition: background 0.15s;
+}
+.pitem:active { background: #1a1a3a; }
+.pitem.playing { background: #081a0e; border-color: var(--green); }
+.pitem.playing .pnum { color: var(--green); }
+.pnum {
+  font-family: Impact, 'Arial Black', sans-serif; font-size: 24px;
+  color: var(--border); min-width: 28px; text-align: center;
+}
+.ptxt { flex: 1; }
+.pnl  { font-size: 11px; color: var(--muted); margin-bottom: 4px; line-height: 1.4; }
+.pes  { font-size: 14px; font-weight: 700; color: var(--white); line-height: 1.4; }
+.phint {
+  font-size: 10px; color: var(--gold); margin-top: 4px;
+  font-family: 'Courier New', monospace;
+}
+.pitem.playing .phint { color: var(--green); }
+.parr { color: var(--gold); font-size: 18px; opacity: 0.6; }
+
+/* ====== RANDOM MODAL ====== */
+.modal-bg {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.85);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  align-items: flex-end; justify-content: center;
+}
+.modal-bg.open { display: flex; }
+
+.modal-box {
+  background: #0e0e28; border: 1px solid var(--border);
+  border-radius: 24px 24px 0 0;
+  padding: 10px 22px 50px; width: 100%; max-width: 600px;
+}
+.m-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+.m-badge  { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+.m-nl     { font-size: 13px; color: var(--muted); font-style: italic; line-height: 1.6; margin-bottom: 10px; }
+.m-es {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(24px, 7vw, 42px); line-height: 1.1;
+  background: linear-gradient(135deg, var(--gold), var(--red2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 24px;
+}
+.m-speak {
+  display: block; width: 100%;
+  background: linear-gradient(135deg, var(--red), var(--gold));
+  border: none; border-radius: 12px; padding: 16px; color: white;
+  font-family: Impact, 'Arial Black', sans-serif; font-size: 18px; letter-spacing: 2px;
+  cursor: pointer; -webkit-appearance: none; appearance: none;
+  margin-bottom: 12px;
+}
+.m-speak:active { opacity: 0.82; }
+.m-speak.playing { background: linear-gradient(135deg, var(--green), var(--blue2)); }
+.m-close {
+  display: block; width: 100%; background: none; border: none;
+  color: var(--muted); font-family: 'Courier New', monospace;
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; -webkit-appearance: none; appearance: none; padding: 10px;
+}
+.m-close:active { color: var(--white); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ====== HOME SCREEN ====== -->
+  <div id="homeScreen" class="screen visible">
+
+    <div id="installBanner">
+      <span class="ico">📲</span>
+      <div class="txt">
+        <div class="ttl">INSTALLEER OP JE IPHONE</div>
+        <div class="dsc">Safari → <strong>Delen ↑</strong> → <strong>"Zet op beginscherm"</strong> → werkt offline!</div>
+      </div>
+      <button id="btnCloseBanner">✕</button>
+    </div>
+
+    <div class="hdr">
+      <div class="hdr-glow"></div>
+      <div class="hdr-glow2"></div>
+      <div class="tag">✈ LIVING ABROAD COMPANION</div>
+      <h1>LAURA<br>IN BCN</h1>
+      <h2>BARCELONA</h2>
+      <p>5 MAANDEN ❤ SPAANS IN 5 CATEGORIEËN</p>
+    </div>
+
+    <div class="welcome-wrap">
+      <div class="sec-label">Tik een zin om Spaans te horen</div>
+      <button class="wcrd" id="wc0">
+        <div class="nl">Hallo Laura, welkom in Barcelona!</div>
+        <div class="es">¡Hola Laura, bienvenida a Barcelona!</div>
+        <div class="hint" id="wh0">▶ Tik om Spaans te horen</div>
+      </button>
+      <button class="wcrd" id="wc1">
+        <div class="nl">Ik kan je helpen met 50 handige zinnen!</div>
+        <div class="es">¡Puedo ayudarte con 50 frases útiles!</div>
+        <div class="hint" id="wh1">▶ Tik om Spaans te horen</div>
+      </button>
+      <button class="wcrd" id="wc2">
+        <div class="nl">Als je wil beginnen, gewoon tikken!</div>
+        <div class="es">¡Si quieres empezar, solo toca!</div>
+        <div class="hint" id="wh2">▶ Tik om Spaans te horen</div>
+      </button>
+    </div>
+
+    <div class="cat-wrap">
+      <div class="sec-label">Kies een categorie</div>
+      <div class="cat-grid">
+        <button class="cbtn" data-cat="0">
+          <span class="ico">🍷</span>
+          <div class="es">COMIDA</div>
+          <div class="nl">Eten &amp; Drinken</div>
+        </button>
+        <button class="cbtn" data-cat="1">
+          <span class="ico">🚇</span>
+          <div class="es">TRANSPORTE</div>
+          <div class="nl">Vervoer &amp; Kaarten</div>
+        </button>
+        <button class="cbtn" data-cat="2">
+          <span class="ico">🛍️</span>
+          <div class="es">COMPRAS</div>
+          <div class="nl">Winkelen</div>
+        </button>
+        <button class="cbtn" data-cat="3">
+          <span class="ico">🤝</span>
+          <div class="es">CORTESÍA</div>
+          <div class="nl">Beleefdheid</div>
+        </button>
+        <button class="cbtn" data-cat="4">
+          <span class="ico">🚨</span>
+          <div class="es">EMERGENCIAS</div>
+          <div class="nl">Noodgevallen</div>
+        </button>
+      </div>
+    </div>
+
+    <button class="rnd-btn" id="btnRandom">
+      <span>🎲</span> VERRAS ME MET EEN WILLEKEURIGE ZIN
+    </button>
+
+    <div class="footer">LAURA IN BCN — LIVING ABROAD COMPANION — ❤</div>
+  </div>
+
+  <!-- ====== CATEGORY SCREEN ====== -->
+  <div id="catScreen" class="screen">
+    <div class="cat-hdr">
+      <button class="back-btn" id="btnBack">← TERUG</button>
+      <div class="cat-hdr-info">
+        <div class="cat-hdr-es" id="catEs"></div>
+        <div class="cat-hdr-nl" id="catNl"></div>
+      </div>
+    </div>
+    <div class="phrase-list" id="phraseList"></div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- ====== RANDOM MODAL ====== -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <div class="m-handle"></div>
+    <div class="m-badge" id="mBadge"></div>
+    <div class="m-nl"    id="mNl"></div>
+    <div class="m-es"    id="mEs"></div>
+    <button class="m-speak" id="mSpeak">🇪🇸 UITSPREKEN IN SPAANS</button>
+    <button class="m-close" id="mClose">✕ SLUITEN</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+var DATA = [
+  { es: 'COMIDA Y BEBIDA',    nl: 'Eten & Drinken',         icon: '🍷',
+    phrases: [
+      { nl: 'Een tafel voor twee alstublieft.',          es: 'Una mesa para dos, por favor.' },
+      { nl: 'De menukaart alstublieft.',                 es: 'La carta, por favor.' },
+      { nl: 'Ik ben allergisch voor...',                 es: 'Soy alérgica a...' },
+      { nl: 'Wat raadt u ons aan?',                      es: '¿Qué nos recomienda?' },
+      { nl: 'Een bier of een glas wijn.',                es: 'Una cerveza o una copa de vino.' },
+      { nl: 'Water zonder prik of met prik.',            es: 'Agua sin gas o con gas.' },
+      { nl: 'Heeft u vegetarische gerechten?',           es: '¿Tienen platos vegetarianos?' },
+      { nl: 'Eet smakelijk!',                            es: '¡Buen provecho!' },
+      { nl: 'Het was erg lekker, bedankt.',              es: 'Estaba muy rico, gracias.' },
+      { nl: 'De rekening alstublieft.',                  es: 'La cuenta, por favor.' }
+    ]
+  },
+  { es: 'TRANSPORTE Y MAPAS', nl: 'Vervoer & Kaarten',      icon: '🚇',
+    phrases: [
+      { nl: 'Waar is het station?',                      es: '¿Dónde está la estación?' },
+      { nl: 'Een kaartje naar ... alstublieft.',         es: 'Un billete para ..., por favor.' },
+      { nl: 'Hoe laat vertrekt de volgende bus?',        es: '¿A qué hora sale el próximo autobús?' },
+      { nl: 'Is het ver hier vandaan?',                  es: '¿Está lejos de aquí?' },
+      { nl: 'Rechtdoor en dan naar rechts of links.',    es: 'Todo recto y luego a la derecha o izquierda.' },
+      { nl: 'Stopt deze bus in ...?',                    es: '¿Para este autobús en ...?' },
+      { nl: 'Waar kan ik een auto huren?',               es: '¿Dónde puedo alquilar un coche?' },
+      { nl: 'Ik ben verdwaald.',                         es: 'Estoy perdida.' },
+      { nl: 'Kunt u het op de kaart aanwijzen?',         es: '¿Puede enseñármelo en el mapa?' },
+      { nl: 'Stop hier alstublieft.',                    es: 'Pare aquí, por favor.' }
+    ]
+  },
+  { es: 'COMPRAS Y PAGOS',    nl: 'Winkelen & Betalingen',  icon: '🛍️',
+    phrases: [
+      { nl: 'Hoeveel kost dit?',                         es: '¿Cuánto cuesta esto?' },
+      { nl: 'Het is erg duur.',                          es: 'Es muy caro.' },
+      { nl: 'Heeft u een grotere of kleinere maat?',     es: '¿Tienen una talla más grande o más pequeña?' },
+      { nl: 'Ik kijk alleen even, bedankt.',             es: 'Solo estoy mirando, gracias.' },
+      { nl: 'Kan ik met kaart betalen?',                 es: '¿Puedo pagar con tarjeta?' },
+      { nl: 'Waar zijn de paskamers?',                   es: '¿Dónde están los probadores?' },
+      { nl: 'Ik neem het.',                              es: 'Me lo llevo.' },
+      { nl: 'Heeft u wisselgeld?',                       es: '¿Tienen cambio?' },
+      { nl: 'Mag ik een bonnetje?',                      es: '¿Me da un recibo?' },
+      { nl: 'Hoe laat gaat u sluiten?',                  es: '¿A qué hora cierran?' }
+    ]
+  },
+  { es: 'CORTESÍA Y SALUDOS', nl: 'Beleefdheid & Groeten',  icon: '🤝',
+    phrases: [
+      { nl: 'Hallo, hoe gaat het?',                      es: '¡Hola! ¿Qué tal?' },
+      { nl: 'Goedemorgen of goedenavond.',               es: 'Buenos días. Buenas noches.' },
+      { nl: 'Hartelijk bedankt.',                        es: 'Muchas gracias.' },
+      { nl: 'Graag gedaan.',                             es: 'De nada.' },
+      { nl: 'Alstublieft.',                              es: 'Por favor.' },
+      { nl: 'Pardon, excuseer me.',                      es: 'Perdón. Disculpe.' },
+      { nl: 'Het spijt me.',                             es: 'Lo siento.' },
+      { nl: 'Aangenaam kennis te maken.',                es: 'Mucho gusto.' },
+      { nl: 'Ik begrijp het niet.',                      es: 'No entiendo.' },
+      { nl: 'Kunt u langzamer praten?',                  es: '¿Puede hablar más despacio?' }
+    ]
+  },
+  { es: 'EMERGENCIAS Y SALUD',nl: 'Noodgevallen & Gezondheid', icon: '🚨',
+    phrases: [
+      { nl: 'Help!',                                     es: '¡Ayuda! ¡Socorro!' },
+      { nl: 'Ik heb een dokter nodig.',                  es: 'Necesito un médico.' },
+      { nl: 'Ik voel me niet goed.',                     es: 'Me siento mal.' },
+      { nl: 'Waar is de apotheek?',                      es: '¿Dónde está la farmacia?' },
+      { nl: 'Ik ben mijn paspoort verloren.',            es: 'He perdido mi pasaporte.' },
+      { nl: 'Mijn tas is gestolen.',                     es: 'Me han robado el bolso.' },
+      { nl: 'Bel de politie of de ambulance.',           es: 'Llamen a la policía o a una ambulancia.' },
+      { nl: 'Ik heb pijn hier.',                         es: 'Me duele aquí.' },
+      { nl: 'Is er een ziekenhuis dichtbij?',            es: '¿Hay un hospital cerca?' },
+      { nl: 'Het is een noodgeval.',                     es: 'Es una emergencia.' }
+    ]
+  }
+];
+
+/* ============================================================
+   SPEECH
+   ============================================================ */
+var voices = [];
+var kaTimer = null;
+
+function loadVoices() {
+  var v = window.speechSynthesis.getVoices();
+  if (v && v.length) { voices = v; }
+}
+if ('speechSynthesis' in window) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function bestVoice(code) {
+  loadVoices();
+  var prefix = code.substring(0, 2).toLowerCase();
+  for (var i = 0; i < voices.length; i++) {
+    if (voices[i].lang.toLowerCase().indexOf(prefix) === 0) return voices[i];
+  }
+  return null;
+}
+
+function speak(text, code, onDone) {
+  if (!window.speechSynthesis) { if (onDone) onDone(); return; }
+  window.speechSynthesis.cancel();
+  if (kaTimer) { clearInterval(kaTimer); kaTimer = null; }
+  setTimeout(function() {
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = code; u.rate = 0.82; u.pitch = 1; u.volume = 1;
+    var v = bestVoice(code); if (v) u.voice = v;
+    u.onend   = function() { if (kaTimer) { clearInterval(kaTimer); kaTimer = null; } if (onDone) onDone(); };
+    u.onerror = function() { if (kaTimer) { clearInterval(kaTimer); kaTimer = null; } if (onDone) onDone(); };
+    window.speechSynthesis.speak(u);
+    kaTimer = setInterval(function() {
+      if (!window.speechSynthesis.speaking) { clearInterval(kaTimer); kaTimer = null; return; }
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+    }, 200);
+  }, 80);
+}
+
+/* ============================================================
+   UI HELPERS
+   ============================================================ */
+function showScreen(id) {
+  document.getElementById('homeScreen').classList.remove('visible');
+  document.getElementById('catScreen').classList.remove('visible');
+  document.getElementById(id).classList.add('visible');
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   WELCOME CARDS
+   ============================================================ */
+var WELCOME_ES = [
+  '¡Hola Laura, bienvenida a Barcelona!',
+  '¡Puedo ayudarte con cincuenta frases útiles!',
+  '¡Si quieres empezar, solo toca!'
+];
+
+function resetWelcomeCards() {
+  for (var i = 0; i < 3; i++) {
+    var c = document.getElementById('wc' + i);
+    var h = document.getElementById('wh' + i);
+    if (c) c.classList.remove('playing');
+    if (h) h.textContent = '▶ Tik om Spaans te horen';
+  }
+}
+
+for (var wi = 0; wi < 3; wi++) {
+  (function(idx) {
+    var btn = document.getElementById('wc' + idx);
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+      resetWelcomeCards();
+      var hint = document.getElementById('wh' + idx);
+      btn.classList.add('playing');
+      hint.textContent = '🔊 Aan het afspelen...';
+      speak(WELCOME_ES[idx], 'es-ES', function() {
+        btn.classList.remove('playing');
+        hint.textContent = '▶ Tik om Spaans te horen';
+      });
+    });
+  })(wi);
+}
+
+/* ============================================================
+   CATEGORY BUTTONS
+   ============================================================ */
+var catBtns = document.querySelectorAll('.cbtn');
+var currentPlayingItem = null;
+
+function openCategory(idx) {
+  var cat = DATA[idx];
+  document.getElementById('catEs').textContent = cat.icon + '  ' + cat.es;
+  document.getElementById('catNl').textContent = cat.nl;
+
+  var list = document.getElementById('phraseList');
+  list.innerHTML = '';
+  currentPlayingItem = null;
+  window.speechSynthesis.cancel();
+
+  for (var pi = 0; pi < cat.phrases.length; pi++) {
+    (function(phrase, num) {
+      var btn = document.createElement('button');
+      btn.className = 'pitem';
+      btn.innerHTML =
+        '<div class="pnum">' + (num < 9 ? '0' : '') + (num + 1) + '</div>' +
+        '<div class="ptxt">' +
+          '<div class="pnl">' + phrase.nl + '</div>' +
+          '<div class="pes">' + phrase.es + '</div>' +
+          '<div class="phint">▶ Tik om Spaans te horen</div>' +
+        '</div>' +
+        '<div class="parr">›</div>';
+
+      btn.addEventListener('click', function() {
+        if (currentPlayingItem && currentPlayingItem !== btn) {
+          currentPlayingItem.classList.remove('playing');
+          var ph = currentPlayingItem.querySelector('.phint');
+          if (ph) ph.textContent = '▶ Tik om Spaans te horen';
+        }
+        currentPlayingItem = btn;
+        btn.classList.add('playing');
+        var hint = btn.querySelector('.phint');
+        hint.textContent = '🔊 Aan het afspelen...';
+        speak(phrase.es, 'es-ES', function() {
+          btn.classList.remove('playing');
+          hint.textContent = '▶ Tik om Spaans te horen';
+          if (currentPlayingItem === btn) currentPlayingItem = null;
+        });
+      });
+
+      list.appendChild(btn);
+    })(cat.phrases[pi], pi);
+  }
+
+  showScreen('catScreen');
+}
+
+for (var ci = 0; ci < catBtns.length; ci++) {
+  (function(btn) {
+    btn.addEventListener('click', function() {
+      var idx = parseInt(btn.getAttribute('data-cat'), 10);
+      openCategory(idx);
+    });
+  })(catBtns[ci]);
+}
+
+/* ============================================================
+   BACK
+   ============================================================ */
+document.getElementById('btnBack').addEventListener('click', function() {
+  window.speechSynthesis.cancel();
+  currentPlayingItem = null;
+  showScreen('homeScreen');
+});
+
+/* ============================================================
+   RANDOM MODAL
+   ============================================================ */
+var randomPhrase = null;
+
+document.getElementById('btnRandom').addEventListener('click', function() {
+  var ci2 = Math.floor(Math.random() * DATA.length);
+  var pi2 = Math.floor(Math.random() * 10);
+  var cat2 = DATA[ci2];
+  randomPhrase = cat2.phrases[pi2];
+
+  document.getElementById('mBadge').textContent = cat2.icon + '  ' + cat2.es;
+  document.getElementById('mNl').textContent = randomPhrase.nl;
+  document.getElementById('mEs').textContent = randomPhrase.es;
+
+  var msp = document.getElementById('mSpeak');
+  msp.classList.remove('playing');
+  msp.textContent = '🇪🇸 UITSPREKEN IN SPAANS';
+
+  document.getElementById('modal').classList.add('open');
+});
+
+document.getElementById('mSpeak').addEventListener('click', function() {
+  if (!randomPhrase) return;
+  var btn = document.getElementById('mSpeak');
+  btn.classList.add('playing');
+  btn.textContent = '🔊 AAN HET AFSPELEN...';
+  speak(randomPhrase.es, 'es-ES', function() {
+    btn.classList.remove('playing');
+    btn.textContent = '🇪🇸 UITSPREKEN IN SPAANS';
+  });
+});
+
+function closeModal() {
+  window.speechSynthesis.cancel();
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('mSpeak').classList.remove('playing');
+  document.getElementById('mSpeak').textContent = '🇪🇸 UITSPREKEN IN SPAANS';
+}
+
+document.getElementById('mClose').addEventListener('click', closeModal);
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+
+/* ============================================================
+   INSTALL BANNER
+   ============================================================ */
+document.getElementById('btnCloseBanner').addEventListener('click', function() {
+  document.getElementById('installBanner').style.display = 'none';
+});
+
+if (window.navigator.standalone === true) {
+  document.getElementById('installBanner').style.display = 'none';
+}
+
+/* iOS: resume speech if Safari pauses it */
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden && window.speechSynthesis && window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+  }
+});
+</script>
+</body>
+</html>
